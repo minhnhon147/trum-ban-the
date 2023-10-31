@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model brand {
+  id         Int       @id @default(autoincrement())
+  brand_name String?   @db.VarChar(255)
+  logo       String?   @db.VarChar(255)
+  state      String?   @default("ACTIVE") @db.VarChar(64)
+  create_at  DateTime? @default(now()) @db.DateTime(0)
+  card       card[]
+}
+
+model card {
+  id        Int       @id @default(autoincrement())
+  brand_id  Int
+  price     Int?
+  discount  Float?    @db.Float
+  state     String?   @default("ACTIVE") @db.VarChar(64)
+  create_at DateTime? @default(now()) @db.DateTime(0)
+  brand     brand     @relation(fields: [brand_id], references: [id], onUpdate: Restrict, map: "card_ibfk_1")
+
+  @@index([brand_id], map: "brand_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model order {
+  id        Int       @id @default(autoincrement())
+  card_id   Int
+  amount    Int?
+  email     String?   @db.VarChar(255)
+  state     String?   @default("PENDING") @db.VarChar(64)
+  create_at DateTime? @default(now()) @db.DateTime(0)
+}
