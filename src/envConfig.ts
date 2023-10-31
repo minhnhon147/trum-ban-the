@@ -21,6 +21,13 @@ const defaultEnvConfig = {
   DB_PASSWORD: "",
   DB_NAME: "trumbanthe",
 
+  PAYOS_CLIENT_ID: "",
+  PAYOS_API_KEY: "",
+  PAYOS_CHECKSUM_KEY: "",
+  PAYOS_API_HOST: "",
+  PAYOS_CANCEL_URL: "http://localhost:3006",
+  PAYOS_RETURN_URL: "http://localhost:3006",
+
   NODE_ENV: "local",
 
   PORT: "3006",
