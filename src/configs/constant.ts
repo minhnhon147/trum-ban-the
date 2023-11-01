@@ -10,6 +10,11 @@ export const MESSAGES = {
 
 export const DEFAULT_DESCRIPTION = "LMN";
 
+export const BRAND_STATE = {
+  ACTIVE: "ACTIVE",
+  DISABLE: "DISABLE",
+};
+
 export const ORDER_STATE = {
   NEW: "NEW",
   PENDING: "PENDING",
