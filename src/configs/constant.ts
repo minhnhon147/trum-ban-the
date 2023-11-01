@@ -16,3 +16,9 @@ export const ORDER_STATE = {
   SUCCESS: "SUCCESS",
   FAILED: "FAILED",
 };
+
+export const PAYMENT_LINK_STATE = {
+  PENDING: "PENDING",
+  SUCCESS: "SUCCESS",
+  FAILED: "FAILED",
+};

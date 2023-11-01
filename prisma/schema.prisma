@@ -31,10 +31,27 @@ model card {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model order {
-  id        Int       @id @default(autoincrement())
-  card_id   Int
-  amount    Int?
-  email     String?   @db.VarChar(255)
-  state     String?   @default("PENDING") @db.VarChar(64)
-  create_at DateTime? @default(now()) @db.DateTime(0)
+  id          Int       @id @default(autoincrement())
+  card_id     Int
+  amount      Int?
+  email       String?   @db.VarChar(255)
+  state       String?   @default("NEW") @db.VarChar(64)
+  create_at   DateTime? @default(now()) @db.DateTime(0)
+  description String?   @db.VarChar(64)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model payment_link {
+  id              Int       @id @default(autoincrement())
+  payment_link_id String?   @db.VarChar(255)
+  order_id        Int?
+  bin             String?   @db.VarChar(64)
+  account_number  String?   @db.VarChar(64)
+  account_name    String?   @db.VarChar(255)
+  amount          Int?
+  description     String?   @db.VarChar(255)
+  checkout_url    String?   @db.VarChar(255)
+  qr_code         String?   @db.VarChar(255)
+  status          String?   @default("PENDING") @db.VarChar(64)
+  create_time     DateTime? @db.DateTime(0)
 }
