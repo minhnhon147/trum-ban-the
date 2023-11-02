@@ -1,7 +1,12 @@
 "use client";
 
-import { RESPONSE_CODE } from "@/configs/constant";
+import {
+  IFRAME_URI,
+  RECIEVE_MESSAGE_TYPE,
+  RESPONSE_CODE,
+} from "@/configs/constant";
 import { Brand, Card } from "@/core/type/types";
+import envConfig from "@/envConfig";
 import toastService from "@/libs/toast";
 import { createPaymentLink, getCards } from "@/service/api.service";
 import { Button } from "@mui/base";
@@ -20,6 +25,14 @@ const Main = (props: Props) => {
   const [card, setCard] = useState<Card>();
   const [showIframe, setShowIframe] = useState(false);
   const [src, setSrc] = useState("");
+
+  useEffect(() => {
+    window.addEventListener("message", recieveMessage);
+
+    return () => {
+      window.removeEventListener("message", recieveMessage);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchCards = async (brandId: number) => {
@@ -62,6 +75,32 @@ const Main = (props: Props) => {
       setShowIframe(true);
     } else {
       toastService.error(paymentLinkResult.data.message);
+    }
+  };
+
+  const recieveMessage = (event: any) => {
+    console.log(event.origin);
+    console.log(event.data);
+    if (event.origin === IFRAME_URI) {
+      const { type, data } = JSON.parse(event.data);
+
+      if (type === RECIEVE_MESSAGE_TYPE.STATUS) {
+        //Trường hợp click vào nút exit để đóng iframe
+        const { loading } = data;
+        if (loading === false) setShowIframe(false);
+        return;
+      }
+
+      if (type === RECIEVE_MESSAGE_TYPE.PAYMENT_RESPONSE) {
+        console.log("run run r");
+        const { loading } = data;
+        if (loading === false) setShowIframe(false);
+      }
+    } else {
+      // The data was NOT sent from your site!
+      // Be careful! Do not use it. This else branch is
+      // here just for clarity, you usually shouldn't need it.
+      return;
     }
   };
   return (

@@ -17,12 +17,12 @@ class SendMail {
     });
   }
 
-  sendMail = async (receiver: string) => {
+  sendMail = async (receiver: string, orderCode: number) => {
     const mailOptions = {
       from: `"Trum Ban The" <${this.email}>`,
       to: receiver.split(","),
       subject: `[Trùm Bán Thẻ] Thông tin đơn hàng`,
-      html: this.formatContentForSend(),
+      html: this.formatContentForSend(orderCode),
     };
 
     await this.transporter.sendMail(
@@ -37,7 +37,7 @@ class SendMail {
     );
   };
 
-  formatContentForSend = () => {
+  formatContentForSend = (orderCode: number) => {
     const text = `
         <!doctype html>
         <html ⚡4email>
@@ -61,6 +61,10 @@ class SendMail {
                 </style>
             </head>
             <body>
+
+
+            <p> OrderCode </p> \n
+                <h2> ${orderCode} </h2>\n
 
             <p> Số seri </p> \n
                 <h2> 9999999999 </h2>\n
