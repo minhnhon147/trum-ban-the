@@ -6,14 +6,17 @@ import {
   RESPONSE_CODE,
 } from "@/configs/constant";
 import { Brand, Card } from "@/core/type/types";
-import envConfig from "@/envConfig";
 import toastService from "@/libs/toast";
 import { createPaymentLink, getCards } from "@/service/api.service";
-import { Button } from "@mui/base";
-import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import axios from "axios";
+import Button from "@mui/material/Button";
+import {
+  ToggleButton,
+  ToggleButtonGroup,
+  CircularProgress,
+} from "@mui/material";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import TextDetailTransaction from "../common/TextDetailTransaction";
 
 type Props = {
   brands: Brand[];
@@ -25,6 +28,7 @@ const Main = (props: Props) => {
   const [card, setCard] = useState<Card>();
   const [showIframe, setShowIframe] = useState(false);
   const [src, setSrc] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     window.addEventListener("message", recieveMessage);
@@ -49,12 +53,16 @@ const Main = (props: Props) => {
   }, [brand]);
 
   const changeBrand = (e: any, value: any) => {
-    setBrand(value);
+    if (value) {
+      setBrand(value);
+    }
     console.log(value);
   };
 
   const changeCard = (e: any, value: any) => {
-    setCard(value);
+    if (value) {
+      setCard(value);
+    }
     console.log(value);
   };
 
@@ -64,18 +72,20 @@ const Main = (props: Props) => {
       return;
     }
 
-    const paymentLinkResult = await createPaymentLink(
+    setIsLoading(true);
+    await createPaymentLink(
       card!.price,
       "minhnhon258@gmail.com",
       card!.id
-    );
-
-    if (paymentLinkResult.data.code === RESPONSE_CODE.SUCCESS) {
-      setSrc(paymentLinkResult.data.data);
-      setShowIframe(true);
-    } else {
-      toastService.error(paymentLinkResult.data.message);
-    }
+    ).then((res) => {
+      setIsLoading(false);
+      if (res.data.code === RESPONSE_CODE.SUCCESS) {
+        setSrc(res.data.data);
+        setShowIframe(true);
+      } else {
+        toastService.error(res.data.message);
+      }
+    });
   };
 
   const recieveMessage = (event: any) => {
@@ -112,7 +122,7 @@ const Main = (props: Props) => {
               <p className="">Chọn nhà cung cấp</p>
             </div>
 
-            <div className="mx-4 my-2">
+            <div className="mx-4 my-4">
               <ToggleButtonGroup
                 className="w-full flex gap-4"
                 value={brand}
@@ -125,9 +135,15 @@ const Main = (props: Props) => {
                     <ToggleButton
                       value={brand}
                       key={brand.id}
-                      className="!border-1 !rounded-lg !border-solid !border-gray-300"
+                      className="!rounded-lg !border-1 !border-gray-300 !border-solid  "
                     >
-                      <span>{brand.brand_name}</span>
+                      <Image
+                        className=" "
+                        src={`/images/${brand.logo}`}
+                        width={100}
+                        height={100}
+                        alt=""
+                      ></Image>
                     </ToggleButton>
                   );
                 })}
@@ -140,7 +156,7 @@ const Main = (props: Props) => {
               <p className="">Chọn mệnh giá</p>
             </div>
 
-            <div className="mx-4 my-2">
+            <div className="mx-4 my-4">
               <ToggleButtonGroup
                 className="w-full flex gap-4"
                 value={card}
@@ -153,42 +169,86 @@ const Main = (props: Props) => {
                     <ToggleButton
                       value={card}
                       key={card.id}
-                      className="!border-1 !rounded-lg !border-solid !border-gray-300"
+                      className="!border-1 !rounded-lg !border-solid !border-gray-300 !capitalize !w-32"
                     >
-                      <span>{card.price}</span>
+                      <div className="w-full flex flex-col justify-center items-center">
+                        <p className="text-black">{card.price}đ</p>
+                        <hr className="w-full border-gray-400 border-dotted"></hr>
+                        <div className="flex justify-between mt-2 w-full">
+                          <p className="!text-xs ">Giá bán:</p>
+                          <p className="!text-xs text-[#002bff]">
+                            {card.price}đ
+                          </p>
+                        </div>
+                      </div>
                     </ToggleButton>
                   );
                 })}
               </ToggleButtonGroup>
             </div>
           </section>
+
+          <section>
+            <div className="bg-gray-200 p-2 w-full">
+              <p className="">Thông tin nhận thẻ</p>
+            </div>
+          </section>
         </div>
 
         <div className="flex-grow">
           <p className="text-xl font-bold">Thanh toán</p>
-          <div className="bg-gray-200 p-2 w-">
-            <p className="">Hình thức thanh toán</p>
-          </div>
 
-          <div>
-            <div className="flex justify-between items-center">
-              <p className="">Loại mã thẻ</p>
-              <p className="text-red-600">{brand.brand_name}</p>
+          <section className="my-4">
+            <div className="bg-gray-200 p-2 w-full">
+              <p className="">Hình thức thanh toán</p>
             </div>
 
-            <div className="flex justify-between items-center">
-              <p className="">Mệnh giá thẻ</p>
-              <p className="text-red-600">{card?.price}</p>
+            <div className="my-2">
+              <div>
+                <Image
+                  className="p-4 border-2 rounded-lg border-solid border-[#f25922] hover:cursor-pointer"
+                  src="/images/payos.png"
+                  width={100}
+                  height={100}
+                  alt=""
+                ></Image>
+              </div>
+            </div>
+          </section>
+
+          <section className="my-8">
+            <div className="bg-gray-200 p-2 w-full">
+              <p className="">Chi tiết giao dịch</p>
             </div>
 
-            <div className="flex justify-between items-center">
-              <p className="">Số lượng</p>
-              <p className="text-red-600">1</p>
-            </div>
-          </div>
+            <div>
+              <TextDetailTransaction
+                title={"Loại mã thẻ"}
+                text={brand.brand_name}
+              />
 
-          <Button className="bg-gray-300 w-[8rem]" onClick={clickPayment}>
-            Thanh toán
+              <TextDetailTransaction
+                title={"Mệnh giá thẻ"}
+                text={card?.price ? card.price + "đ" : " "}
+              />
+
+              <TextDetailTransaction title={"Số lượng"} text={"1"} />
+            </div>
+          </section>
+
+          <Button
+            variant="contained"
+            className="w-full bg-[#001a4c] hover:!bg-[#032870] disabled:!bg-[#032870]"
+            onClick={clickPayment}
+            disabled={isLoading}
+          >
+            {!isLoading ? (
+              <span>Thanh toán</span>
+            ) : (
+              <div className="flex items-center justify-center">
+                <CircularProgress className="!w-[30px] !h-[30px] !text-white" />
+              </div>
+            )}
           </Button>
         </div>
 
