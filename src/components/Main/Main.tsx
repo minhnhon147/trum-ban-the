@@ -9,7 +9,6 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import axios from "axios";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 
 type Props = {
   brands: Brand[];
@@ -29,7 +28,7 @@ const Main = (props: Props) => {
         setCards(getCardsResult.data.data);
       } else {
         console.log(getCardsResult.data.message);
-        // toastService.error(getCardsResult.data.message);
+        toastService.error(getCardsResult.data.message);
       }
     };
 
@@ -47,15 +46,22 @@ const Main = (props: Props) => {
   };
 
   const clickPayment = async () => {
+    if (!card) {
+      toastService.info("Chưa chọn mệnh giá thẻ");
+      return;
+    }
+
     const paymentLinkResult = await createPaymentLink(
       card!.price,
-      "minhnhon369@gmail.com",
+      "minhnhon258@gmail.com",
       card!.id
     );
 
     if (paymentLinkResult.data.code === RESPONSE_CODE.SUCCESS) {
       setSrc(paymentLinkResult.data.data);
       setShowIframe(true);
+    } else {
+      toastService.error(paymentLinkResult.data.message);
     }
   };
   return (

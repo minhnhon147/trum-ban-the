@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
-import { createTheme } from "@mui/material/styles";
-
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import ThemeRegistry from "@/components/ThemeRegistry/ThemeRegistry";
 import { ToastContainer } from "react-toastify";
@@ -20,7 +18,8 @@ export default function RootLayout({
     <html suppressHydrationWarning={true}>
       <body suppressHydrationWarning={true}>
         <ThemeRegistry>{children}</ThemeRegistry>
-        {/* <ToastContainer /> */}
+
+        <ToastContainer />
       </body>
     </html>
   );

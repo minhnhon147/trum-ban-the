@@ -1,4 +1,5 @@
 import { MESSAGES, ORDER_STATE, RESPONSE_CODE } from "@/configs/constant";
+import envConfig from "@/envConfig";
 import logger from "@/libs/logger";
 import prisma from "@/libs/prisma";
 import payos from "@/service/payos";
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // SUCCESS
     //todo store payment link
+
     console.log(paymentLink.data);
 
     await prisma.$transaction(async (tx) => {
@@ -71,10 +73,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
       });
     });
 
+    let url = paymentLinkRes.data.checkoutUrl;
+
+    if (url.startsWith("https://pay.payos.vn")) {
+      url = url.replace("https://pay.payos.vn", "https://next.pay.payos.vn");
+      url += `?iframe=true&redirect_uri=${envConfig.get("PAYOS_RETURN_URL")}`;
+    }
+
     return NextResponse.json({
       code: RESPONSE_CODE.SUCCESS,
       message: MESSAGES.SUCCESS,
-      data: paymentLinkRes.data.checkoutUrl,
+      data: url,
     });
   } catch (error) {
     return NextResponse.json({

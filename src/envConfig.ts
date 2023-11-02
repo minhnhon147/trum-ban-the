@@ -28,6 +28,9 @@ const defaultEnvConfig = {
   PAYOS_CANCEL_URL: "http://localhost:3006",
   PAYOS_RETURN_URL: "http://localhost:3006",
 
+  NODE_MAILER_EMAIL: "minhnhon369@gmail.com",
+  NODE_MAILER_PASSWORD: "tdce ycve dunr vzxj",
+
   NODE_ENV: "local",
 
   PORT: "3006",

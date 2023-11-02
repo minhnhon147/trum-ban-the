@@ -26,6 +26,15 @@ class Toast {
 
     return;
   }
+
+  info(message: string) {
+    this.toastElement(message, {
+      hideProgressBar: false,
+      autoClose: 2000,
+      type: "info",
+    });
+    return;
+  }
 }
 
 const toastService = new Toast();
