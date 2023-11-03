@@ -13,9 +13,10 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TextDetailTransaction from "../common/TextDetailTransaction";
 
 type Props = {
@@ -29,7 +30,7 @@ const Main = (props: Props) => {
   const [showIframe, setShowIframe] = useState(false);
   const [src, setSrc] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const [email, setEmail] = useState<string>("");
   useEffect(() => {
     window.addEventListener("message", recieveMessage);
 
@@ -38,13 +39,16 @@ const Main = (props: Props) => {
     };
   }, []);
 
+  const formatPrice = useCallback((price: number) => {
+    return price.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+  }, []);
+
   useEffect(() => {
     const fetchCards = async (brandId: number) => {
       const getCardsResult = await getCards(brandId);
       if (getCardsResult.data.code === RESPONSE_CODE.SUCCESS) {
         setCards(getCardsResult.data.data);
       } else {
-        console.log(getCardsResult.data.message);
         toastService.error(getCardsResult.data.message);
       }
     };
@@ -66,6 +70,11 @@ const Main = (props: Props) => {
     console.log(value);
   };
 
+  const changeEmail = (event: any) => {
+    setEmail(event.target.value);
+    console.log(event.target.value);
+  };
+
   const clickPayment = async () => {
     if (!card) {
       toastService.info("Chưa chọn mệnh giá thẻ");
@@ -73,11 +82,7 @@ const Main = (props: Props) => {
     }
 
     setIsLoading(true);
-    await createPaymentLink(
-      card!.price,
-      "minhnhon258@gmail.com",
-      card!.id
-    ).then((res) => {
+    await createPaymentLink(card!.price, email, card!.id).then((res) => {
       setIsLoading(false);
       if (res.data.code === RESPONSE_CODE.SUCCESS) {
         setSrc(res.data.data);
@@ -89,8 +94,6 @@ const Main = (props: Props) => {
   };
 
   const recieveMessage = (event: any) => {
-    console.log(event.origin);
-    console.log(event.data);
     if (event.origin === IFRAME_URI) {
       const { type, data } = JSON.parse(event.data);
 
@@ -124,7 +127,7 @@ const Main = (props: Props) => {
 
             <div className="mx-4 my-4">
               <ToggleButtonGroup
-                className="w-full flex gap-4"
+                className="w-full flex gap-4 flex-wrap"
                 value={brand}
                 exclusive
                 onChange={changeBrand}
@@ -158,7 +161,7 @@ const Main = (props: Props) => {
 
             <div className="mx-4 my-4">
               <ToggleButtonGroup
-                className="w-full flex gap-4"
+                className="w-full flex gap-4 flex-wrap"
                 value={card}
                 exclusive
                 onChange={changeCard}
@@ -172,12 +175,12 @@ const Main = (props: Props) => {
                       className="!border-1 !rounded-lg !border-solid !border-gray-300 !capitalize !w-32"
                     >
                       <div className="w-full flex flex-col justify-center items-center">
-                        <p className="text-black">{card.price}đ</p>
+                        <p className="text-black">{formatPrice(card.price)}đ</p>
                         <hr className="w-full border-gray-400 border-dotted"></hr>
                         <div className="flex justify-between mt-2 w-full">
                           <p className="!text-xs ">Giá bán:</p>
                           <p className="!text-xs text-[#002bff]">
-                            {card.price}đ
+                            {formatPrice(card.price)}đ
                           </p>
                         </div>
                       </div>
@@ -191,6 +194,23 @@ const Main = (props: Props) => {
           <section>
             <div className="bg-gray-200 p-2 w-full">
               <p className="">Thông tin nhận thẻ</p>
+            </div>
+
+            <div className="my-4 px-4">
+              <p className="text-red-600 mb-6">
+                Đề nghị quý khách điền chính xác địa chỉ email để tránh nhầm lẫn
+                và mất thẻ.
+              </p>
+              <TextField
+                id="outlined-basic"
+                value={email}
+                onChange={changeEmail}
+                placeholder="Email nhận thẻ"
+                type="text"
+                label="Email nhận thẻ"
+                variant="outlined"
+                className="w-full"
+              />
             </div>
           </section>
         </div>
@@ -233,14 +253,36 @@ const Main = (props: Props) => {
               />
 
               <TextDetailTransaction title={"Số lượng"} text={"1"} />
+
+              <hr />
+
+              <TextDetailTransaction
+                title={"Email nhận"}
+                text={email}
+              ></TextDetailTransaction>
+
+              <hr />
+              <TextDetailTransaction
+                title={"Phí giao dịch"}
+                text={"Miễn phí"}
+              ></TextDetailTransaction>
+
+              <hr />
+
+              <div className="flex justify-between items-center m-2">
+                <p className="">Tổng tiền</p>
+                <p className="text-red-600 font-medium text-[2rem]">
+                  {card?.price ? formatPrice(card.price) + "đ" : " "}
+                </p>
+              </div>
             </div>
           </section>
 
           <Button
             variant="contained"
-            className="w-full bg-[#001a4c] hover:!bg-[#032870] disabled:!bg-[#032870]"
+            className="w-full bg-[#001a4c] hover:!bg-[#032870] disabled:!bg-[#032870] disabled:!text-gray-400"
             onClick={clickPayment}
-            disabled={isLoading}
+            disabled={isLoading || email.length === 0}
           >
             {!isLoading ? (
               <span>Thanh toán</span>

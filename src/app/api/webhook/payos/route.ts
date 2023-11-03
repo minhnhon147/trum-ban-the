@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
       const orderId = order.id || 1;
       //mail + ordercode
-      await transport.sendMail("minhnhon159@gmail.com", orderId);
+      await transport.sendMail(String(order.email), orderId);
 
       // console.log(body);
     }

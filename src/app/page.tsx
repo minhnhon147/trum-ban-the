@@ -1,9 +1,9 @@
 import Main from "@/components/Main/Main";
+import CarouselCom from "@/components/common/CarouselCom";
 import { BRAND_STATE } from "@/configs/constant";
 import logger from "@/libs/logger";
 import prisma from "@/libs/prisma";
 import Image from "next/image";
-import { ToastContainer } from "react-toastify";
 
 const getBrands = async () => {
   try {
@@ -29,6 +29,7 @@ export default async function Home() {
   const brands = await getBrands();
   return (
     <main>
+      <CarouselCom></CarouselCom>
       <section className="w-full h-full flex flex-col items-center p-4">
         <Main brands={brands}></Main>
       </section>
